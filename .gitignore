@@ -1,0 +1,69 @@
+# Archivos de configuración sensibles
+config/database.php
+admin/config/database.php
+
+# Archivos de logs
+*.log
+logs/
+error.log
+access.log
+
+# Archivos temporales
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Archivos de sistema
+.htaccess
+.htpasswd
+
+# Uploads y archivos subidos por usuarios (opcional - puedes comentar si quieres incluirlos)
+uploads/products/*
+uploads/additionals/*
+!uploads/products/.gitkeep
+!uploads/additionals/.gitkeep
+
+# Archivos de backup y temporales de desarrollo
+*_backup.php
+*_old.php
+*_test.php
+debug_*.php
+test_*.php
+check_*.php
+fix_*.php
+setup_*.php
+
+# Archivos SQL de desarrollo/testing
+*.sql
+!setup.sql
+
+# Archivos de documentación temporal
+TODO*.md
+RESUMEN*.md
+*_COMPLETADO.md
+*_IMPLEMENTATION.md
+
+# Cache y archivos temporales de PHP
+*.cache
+cache/
+tmp/
+
+# Archivos de composer (si los usas)
+vendor/
+composer.lock
+
+# Variables de entorno
+.env
+.env.local
+.env.production
+
+# Archivos de sesión
+sessions/

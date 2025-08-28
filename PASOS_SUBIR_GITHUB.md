@@ -22,12 +22,12 @@
 Después de crear el repositorio, GitHub te mostrará comandos. Usa estos:
 
 ```bash
-git remote add origin https://github.com/TU_USUARIO/sistema-pedidos-restaurante.git
+git remote add origin https://github.com/itolab84/sistema-pedidos-restaurante.git
 git branch -M main
 git push -u origin main
 ```
 
-**Reemplaza `TU_USUARIO` con tu nombre de usuario de GitHub**
+**Reemplaza `itolab84` con tu nombre de usuario de GitHub**
 
 ### 3. Verificar que se subió correctamente
 ```bash

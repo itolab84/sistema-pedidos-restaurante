@@ -1,163 +1,243 @@
-# Sistema de Pedidos de Restaurante
+# Sistema de Restaurante - Sabor Latino
 
-Un sistema completo de pedidos en línea para restaurantes desarrollado con PHP, MySQL y Bootstrap.
+Un sistema completo de gestión de restaurante con pedidos online, panel de administración y múltiples funcionalidades avanzadas.
 
-## Características
+## 🚀 Características Principales
 
-- ✅ Catálogo de productos con imágenes y descripciones
-- ✅ Carrito de compras interactivo
-- ✅ Proceso de checkout seguro
-- ✅ Gestión de pedidos en tiempo real
-- ✅ Diseño responsive para móviles
-- ✅ Notificaciones toast para mejor experiencia de usuario
-- ✅ API RESTful para integraciones futuras
+### 🍽️ Sistema de Pedidos
+- Catálogo de productos con categorías
+- Carrito de compras interactivo
+- Múltiples métodos de pago
+- Seguimiento de pedidos en tiempo real
+- Sistema de notificaciones
 
-## Tecnologías Utilizadas
+### 👨‍💼 Panel de Administración
+- Gestión completa de productos y categorías
+- Administración de pedidos y estados
+- Sistema de clientes con historial
+- Gestión de empleados y horarios
+- Reportes y estadísticas
+- Sistema de banners promocionales
 
-- **Backend**: PHP 7.4+
-- **Base de Datos**: MySQL 5.7+
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Framework CSS**: Bootstrap 5
-- **Iconos**: Font Awesome
-- **API**: RESTful endpoints
+### 💳 Sistema de Pagos
+- Múltiples métodos de pago
+- Integración con APIs de validación
+- Gestión de cuentas bancarias
+- Historial de transacciones
 
-## Instalación
+### 📱 Características Avanzadas
+- Diseño responsive (móvil y desktop)
+- PWA (Progressive Web App)
+- Sistema de notificaciones push
+- API REST completa
+- Gestión de rutas de delivery
+- Sistema de cambios y auditoría
 
-### Requisitos Previos
-- PHP 7.4 o superior
-- MySQL 5.7 o superior
-- Servidor web (Apache/Nginx)
-- Composer (opcional)
+## 📋 Requisitos del Sistema
 
-### Pasos de Instalación
+### Servidor Web
+- **PHP**: 7.4 o superior
+- **MySQL**: 5.7 o superior (recomendado 8.0+)
+- **Apache/Nginx**: Con mod_rewrite habilitado
 
-1. **Clonar el repositorio**
-   ```bash
-   git clone [URL_DEL_REPOSITORIO]
-   cd sistema-pedidos-restaurante
-   ```
+### Extensiones PHP Requeridas
+- `mysqli`
+- `pdo`
+- `pdo_mysql`
+- `json`
+- `mbstring`
+- `gd` (opcional, para manipulación de imágenes)
 
-2. **Configurar la base de datos**
-   - Crear una base de datos MySQL llamada `restaurante_pedidos`
-   - Importar el archivo `setup.sql`:
-   ```bash
-   mysql -u [usuario] -p restaurante_pedidos < setup.sql
-   ```
+### Permisos de Archivos
+- Permisos de escritura en:
+  - `config/`
+  - `uploads/`
+  - `assets/images/banners/`
 
-3. **Configurar la conexión a la base de datos**
-   - Editar el archivo `config/database.php`
-   - Actualizar las credenciales:
-   ```php
-   $host = 'localhost';
-   $username = 'tu_usuario';
-   $password = 'tu_contraseña';
-   $database = 'restaurante_pedidos';
-   ```
+## 🛠️ Instalación Automática
 
-4. **Configurar el servidor web**
-   - Apuntar el document root al directorio del proyecto
-   - Asegurarse de que PHP esté correctamente configurado
+### Paso 1: Descargar y Extraer
+1. Descarga el sistema completo
+2. Extrae los archivos en tu servidor web
+3. Asegúrate de que la carpeta tenga permisos de escritura
 
-5. **Acceder al sistema**
-   - Abrir el navegador en `http://localhost/index.php`
+### Paso 2: Ejecutar el Instalador
+1. Abre tu navegador web
+2. Navega a: `http://tu-dominio.com/install.php`
+3. Sigue el asistente de instalación paso a paso
 
-## Estructura del Proyecto
+### Paso 3: Configuración de Base de Datos
+El instalador te pedirá:
+- **Servidor**: `localhost` (generalmente)
+- **Usuario**: Tu usuario de MySQL
+- **Contraseña**: Tu contraseña de MySQL
+- **Base de Datos**: `restaurante_pedidos` (se creará automáticamente)
+
+### Paso 4: Completar Instalación
+- El instalador creará todas las tablas necesarias
+- Insertará datos de ejemplo
+- Configurará el usuario administrador por defecto
+
+## 🔐 Acceso Inicial
+
+### Panel de Administración
+- **URL**: `http://tu-dominio.com/admin/`
+- **Usuario**: `admin`
+- **Contraseña**: `admin123`
+
+> ⚠️ **IMPORTANTE**: Cambia la contraseña después del primer login
+
+### Sitio Web
+- **URL**: `http://tu-dominio.com/`
+- El sitio estará listo para recibir pedidos
+
+## 🗂️ Estructura del Sistema
 
 ```
-sistema-pedidos-restaurante/
-├── api/
-│   ├── products.php          # API para productos
-│   └── orders.php            # API para pedidos
-├── assets/
-│   ├── css/
-│   │   └── style.css         # Estilos personalizados
-│   └── js/
-│       └── app.js            # JavaScript de la aplicación
-├── config/
-│   └── database.php          # Configuración de base de datos
-├── index.php                 # Página principal
-├── setup.sql                 # Script de inicialización de BD
-└── README.md                # Este archivo
+/
+├── admin/                  # Panel de administración
+│   ├── config/            # Configuraciones admin
+│   ├── assets/            # CSS/JS del admin
+│   ├── includes/          # Archivos comunes
+│   ├── products/          # Gestión de productos
+│   ├── orders/            # Gestión de pedidos
+│   ├── customers/         # Gestión de clientes
+│   ├── employees/         # Gestión de empleados
+│   ├── banners/           # Gestión de banners
+│   └── ...
+├── api/                   # API REST
+│   ├── products.php       # API de productos
+│   ├── orders.php         # API de pedidos
+│   ├── payment_methods.php # API de métodos de pago
+│   └── ...
+├── assets/                # Recursos del frontend
+│   ├── css/               # Estilos
+│   ├── js/                # JavaScript
+│   └── images/            # Imágenes
+├── config/                # Configuraciones generales
+│   └── database.php       # Configuración de BD
+├── install/               # Archivos del instalador
+│   ├── database.sql       # Esquema de BD
+│   ├── sample_data.sql    # Datos de ejemplo
+│   └── config.php         # Configuración del instalador
+├── uploads/               # Archivos subidos
+│   ├── products/          # Imágenes de productos
+│   └── additionals/       # Imágenes adicionales
+├── install.php            # Instalador principal
+└── index.php              # Página principal
 ```
 
-## Uso del Sistema
+## ⚙️ Configuración Post-Instalación
 
-### Para Clientes
-1. **Explorar productos**: Ver el catálogo completo de productos
-2. **Agregar al carrito**: Seleccionar productos y cantidades
-3. **Realizar pedido**: Completar el formulario de checkout
-4. **Confirmación**: Recibir confirmación del pedido
+### 1. Seguridad
+- [ ] Cambiar contraseña del administrador
+- [ ] Eliminar o renombrar `install.php` e `install/`
+- [ ] Configurar permisos de archivos apropiados
 
-### Para Administradores
-- Los pedidos se almacenan en la tabla `orders`
-- Se puede acceder a los detalles de cada pedido
-- El estado de los pedidos puede ser actualizado
+### 2. Información de la Empresa
+- [ ] Actualizar datos de la empresa en el panel admin
+- [ ] Configurar métodos de pago
+- [ ] Establecer horarios de atención
+- [ ] Configurar información de contacto
 
-## API Endpoints
+### 3. Productos y Categorías
+- [ ] Agregar/editar categorías de productos
+- [ ] Subir productos con imágenes
+- [ ] Configurar precios y descripciones
+- [ ] Establecer productos destacados
 
-### Productos
-- `GET /api/products.php` - Obtener todos los productos
+### 4. Configuraciones Avanzadas
+- [ ] Configurar APIs de pago (opcional)
+- [ ] Establecer zonas de delivery
+- [ ] Configurar notificaciones
+- [ ] Personalizar banners promocionales
 
-### Pedidos
-- `POST /api/orders.php` - Crear nuevo pedido
-- `GET /api/orders.php?id={id}` - Obtener detalles de un pedido
+## 🔧 Configuraciones Importantes
 
-## Personalización
+### Base de Datos
+El archivo `config/database.php` contiene la configuración de conexión:
+```php
+define('DB_HOST', 'localhost');
+define('DB_USER', 'tu_usuario');
+define('DB_PASS', 'tu_contraseña');
+define('DB_NAME', 'restaurante_pedidos');
+```
 
-### Agregar nuevos productos
-1. Usar el script SQL o la interfaz de administración
-2. Asegurarse de incluir imagen, nombre, descripción y precio
+### Configuraciones de la Empresa
+Accede a `Admin > Configuraciones` para establecer:
+- Nombre de la empresa
+- Información de contacto
+- Horarios de atención
+- Costos de delivery
+- Moneda y tasas de impuesto
 
-### Modificar estilos
-- Editar `assets/css/style.css`
-- Los estilos están organizados por componentes
+## 🚨 Solución de Problemas
 
-### Agregar funcionalidades
-- Extender `assets/js/app.js`
-- Agregar nuevos endpoints en la carpeta `api/`
+### Error de Conexión a Base de Datos
+1. Verifica las credenciales en `config/database.php`
+2. Asegúrate de que MySQL esté ejecutándose
+3. Verifica que la base de datos exista
 
-## Seguridad
+### Permisos de Archivos
+```bash
+chmod 755 config/
+chmod 755 uploads/
+chmod 755 assets/images/banners/
+```
 
-- Validación de entrada en el servidor
-- Escapado de datos SQL
-- Sanitización de datos del formulario
-- HTTPS recomendado en producción
+### Error 500 - Internal Server Error
+1. Verifica los logs de error del servidor
+2. Asegúrate de que todas las extensiones PHP estén instaladas
+3. Verifica la sintaxis de los archivos .htaccess
 
-## Solución de Problemas
+### Problemas con Imágenes
+1. Verifica permisos de la carpeta `uploads/`
+2. Asegúrate de que la extensión `gd` esté habilitada
+3. Verifica el tamaño máximo de subida en PHP
 
-### Error de conexión a la base de datos
-- Verificar credenciales en `config/database.php`
-- Asegurar que MySQL esté ejecutándose
-- Comprobar permisos de usuario
+## 📚 Documentación Adicional
 
-### Productos no se muestran
-- Verificar que la tabla `products` tenga datos
-- Revisar la consola del navegador para errores JavaScript
-- Confirmar que la API esté accesible
+### APIs Disponibles
+- `GET /api/products.php` - Obtener productos
+- `POST /api/orders.php` - Crear pedido
+- `GET /api/payment_methods.php` - Métodos de pago
+- `GET /api/banners.php` - Banners activos
 
-### Errores de CORS
-- Asegurar que el servidor web esté configurado correctamente
-- Verificar las cabeceras CORS en los archivos PHP
+### Personalización
+- Los estilos CSS están en `assets/css/style.css`
+- Los scripts JavaScript en `assets/js/app_final.js`
+- Las plantillas del admin en sus respectivas carpetas
 
-## Contribuciones
+## 🆘 Soporte
 
-Las contribuciones son bienvenidas. Por favor:
-1. Fork el proyecto
-2. Crear una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir un Pull Request
+### Logs del Sistema
+- Logs de PHP: Verifica los logs de tu servidor web
+- Logs de MySQL: Revisa los logs de MySQL para errores de BD
+- Logs del navegador: Usa las herramientas de desarrollador
 
-## Licencia
+### Backup y Restauración
+```sql
+-- Crear backup
+mysqldump -u usuario -p restaurante_pedidos > backup.sql
 
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+-- Restaurar backup
+mysql -u usuario -p restaurante_pedidos < backup.sql
+```
 
-## Soporte
+## 📄 Licencia
 
-Para soporte técnico o preguntas:
-- Crear un issue en GitHub
-- Contactar al equipo de desarrollo
+Este sistema está desarrollado para uso comercial. Todos los derechos reservados.
 
-## Demo
+## 🔄 Actualizaciones
 
-[Enlace a la demo en línea - si está disponible]
+Para futuras actualizaciones:
+1. Realiza un backup completo
+2. Actualiza los archivos del sistema
+3. Ejecuta cualquier script de migración de BD si es necesario
+4. Verifica que todo funcione correctamente
+
+---
+
+**¡Tu sistema de restaurante está listo para funcionar!** 🎉
+
+Para soporte adicional o consultas, revisa la documentación técnica en el panel de administración.

@@ -182,7 +182,7 @@ $stats = [
     'processing_orders' => $db->fetchOne("SELECT COUNT(*) as count FROM orders WHERE status IN ('confirmed', 'preparing', 'ready')")['count'] ?? 0,
     'completed_orders' => $db->fetchOne("SELECT COUNT(*) as count FROM orders WHERE status = 'delivered'")['count'] ?? 0,
     'today_orders' => $db->fetchOne("SELECT COUNT(*) as count FROM orders WHERE DATE(created_at) = CURDATE()")['count'] ?? 0,
-    'today_revenue' => $db->fetchOne("SELECT COALESCE(SUM(total_amount), 0) as total FROM orders WHERE DATE(created_at) = CURDATE() AND status != 'cancelled'")['total'] ?? 0
+    'today_revenue' => $db->fetchOne("SELECT COALESCE(SUM(COALESCE(total_amount_usd, total_amount)), 0) as total FROM orders WHERE DATE(created_at) = CURDATE() AND status != 'cancelled'")['total'] ?? 0
 ];
 ?>
 <!DOCTYPE html>
@@ -499,7 +499,7 @@ $stats = [
                                                 </td>
                                                 <td>
                                                     <span class="fw-bold text-success">
-                                                        $<?= number_format($order['total_amount'], 2) ?>
+                                                        $<?= number_format($order['total_amount_usd'] ?? $order['total_amount'], 2) ?>
                                                     </span>
                                                 </td>
                                                 <td>

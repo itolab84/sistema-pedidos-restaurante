@@ -155,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Preparar datos para la API externa
         $paymentData = [
-            "amount" => (string)$amount,
+            "amount" => $amount,
             "reference" => $reference,
             "mobile" => $input['mobile'] ?? "",
             "sender" => $input['sender'] ?? "",
@@ -165,6 +165,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Llamar a la API externa
         $validationResult = validatePaymentWithAPI($apiConfig, $paymentData);
         
+        // Preparar información detallada de debug para mostrar en el formulario
+        $debugInfo = [
+            'timestamp' => date('Y-m-d H:i:s'),
+            'api_config' => [
+                'endpoint' => $apiConfig['endpoint_url'],
+                'has_api_key' => !empty($apiConfig['api_key']),
+                'api_key_preview' => !empty($apiConfig['api_key']) ? substr($apiConfig['api_key'], 0, 10) . '...' : 'No configurada'
+            ],
+            'request_data' => $paymentData,
+            'validation_result' => $validationResult
+        ];
+        
         if ($validationResult['success']) {
             $apiResponse = $validationResult['data'];
             
@@ -173,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             echo json_encode([
                 'success' => true,
-                'message' => 'Pago validado exitosamente',
+                'message' => 'Pago validado exitosamente con API externa',
                 'data' => [
                     'amount_usd' => $apiResponse['amount_usd'] ?? null,
                     'bank_origin_name' => $apiResponse['bank_origin_name'] ?? null,
@@ -183,31 +195,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'reference' => $reference,
                     'validated_at' => date('Y-m-d H:i:s')
                 ],
-                'debug' => [
-                    'api_config' => [
-                        'endpoint' => $apiConfig['endpoint_url'],
-                        'has_api_key' => !empty($apiConfig['api_key'])
+                'debug' => $debugInfo,
+                'api_logs' => [
+                    'request_sent' => "POST {$apiConfig['endpoint_url']}",
+                    'request_headers' => [
+                        'Authorization: Token ' . substr($apiConfig['api_key'], 0, 10) . '...',
+                        'Content-Type: application/json'
                     ],
-                    'sent_data' => $paymentData,
-                    'full_api_response' => $apiResponse
+                    'request_body' => json_encode($paymentData, JSON_PRETTY_PRINT),
+                    'response_received' => 'HTTP 200 - Validación exitosa',
+                    'response_body' => json_encode($apiResponse, JSON_PRETTY_PRINT)
                 ]
             ]);
         } else {
             // Registrar el error en logs
             error_log("Payment validation failed for reference: {$reference}, error: " . $validationResult['message']);
             
-            echo json_encode([
-                'success' => false,
-                'message' => $validationResult['message'],
-                'debug' => [
-                    'api_config' => [
-                        'endpoint' => $apiConfig['endpoint_url'],
-                        'has_api_key' => !empty($apiConfig['api_key'])
+            // Preparar logs detallados del error
+            $errorLogs = [
+                'request_sent' => "POST {$apiConfig['endpoint_url']}",
+                'request_headers' => [
+                    'Authorization: Token ' . substr($apiConfig['api_key'], 0, 10) . '...',
+                    'Content-Type: application/json'
+                ],
+                'request_body' => json_encode($paymentData, JSON_PRETTY_PRINT),
+                'response_received' => $validationResult['message'],
+                'response_body' => isset($validationResult['response']) ? json_encode($validationResult['response'], JSON_PRETTY_PRINT) : 'Sin respuesta del servidor'
+            ];
+            
+            // Si la API externa falla (error 500), permitir validación manual
+            if (strpos($validationResult['message'], 'Código: 500') !== false) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'API externa no disponible - Pago registrado para validación manual',
+                    'manual_validation' => true,
+                    'data' => [
+                        'amount' => $amount,
+                        'reference' => $reference,
+                        'validated_at' => date('Y-m-d H:i:s'),
+                        'validation_status' => 'pending_manual_review',
+                        'api_error' => $validationResult['message']
                     ],
-                    'sent_data' => $paymentData,
-                    'validation_result' => $validationResult
-                ]
-            ]);
+                    'debug' => $debugInfo,
+                    'api_logs' => array_merge($errorLogs, [
+                        'fallback_action' => 'Registrado para validación manual debido a error 500 del servidor externo'
+                    ])
+                ]);
+            } else {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Error en validación: ' . $validationResult['message'],
+                    'debug' => $debugInfo,
+                    'api_logs' => $errorLogs
+                ]);
+            }
         }
         
     } catch (Exception $e) {

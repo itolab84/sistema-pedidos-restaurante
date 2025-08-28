@@ -17,6 +17,8 @@ if ($currentDir === 'admin' || $currentPage === 'index.php') {
     $activeMenu = 'orders';
 } elseif ($currentDir === 'payments') {
     $activeMenu = 'payments';
+} elseif ($currentDir === 'banners') {
+    $activeMenu = 'banners';
 } elseif ($currentDir === 'employees' || $currentDir === 'delivery') {
     $activeMenu = 'configuration';
 } elseif ($currentDir === 'payment_methods' || $currentDir === 'company' || $currentDir === 'integrations') {
@@ -101,6 +103,14 @@ if ($currentDir === 'admin' || $currentPage === 'index.php') {
             </a>
         </div>
         
+        <div class="sidebar-nav-item">
+            <a href="<?= $currentDir === 'admin' ? 'banners/' : ($currentDir === 'banners' ? 'index.php' : '../banners/') ?>" 
+               class="sidebar-nav-link <?= $activeMenu === 'banners' ? 'active' : '' ?>">
+                <i class="fas fa-images"></i>
+                <span class="sidebar-nav-text">Banners</span>
+            </a>
+        </div>
+        
         <!-- Configuration with Submenu -->
         <div class="sidebar-nav-item has-submenu">
             <a href="#" class="sidebar-nav-link <?= $activeMenu === 'configuration' ? 'active' : '' ?>" 
@@ -148,23 +158,69 @@ if ($currentDir === 'admin' || $currentPage === 'index.php') {
             <i class="fas fa-bars"></i>
         </button>
         
-        <div class="user-dropdown dropdown">
-            <button class="dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                <i class="fas fa-user-circle me-2"></i>
-                <?= htmlspecialchars($user['full_name']) ?>
-            </button>
-            <ul class="dropdown-menu">
-                <li>
-                    <a class="dropdown-item" href="<?= $currentDir === 'admin' ? 'logout.php' : '../logout.php' ?>">
-                        <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
-                    </a>
-                </li>
-            </ul>
+        <!-- Notifications and User Section -->
+        <div class="header-actions">
+            <!-- Notifications Dropdown -->
+            <div class="dropdown me-3">
+                <button class="btn btn-outline-secondary position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notification-badge" style="display: none;">
+                        0
+                    </span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationDropdown">
+                    <div class="dropdown-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-bell me-2"></i>Notificaciones</span>
+                        <div>
+                            <button class="btn btn-sm btn-outline-secondary me-1" onclick="toggleSound()" title="Alternar sonido" id="soundToggle">
+                                <i class="fas fa-volume-up"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="clearNotifications()" title="Limpiar notificaciones">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div id="notifications-list" class="notifications-list">
+                        <div class="text-center text-muted p-3">
+                            <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                            No hay notificaciones nuevas
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-footer text-center">
+                        <a href="<?= $currentDir === 'admin' ? 'orders/' : ($currentDir === 'orders' ? 'index.php' : '../orders/') ?>" class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye me-1"></i>Ver todas las órdenes
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Dropdown -->
+            <div class="user-dropdown dropdown">
+                <button class="dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-circle me-2"></i>
+                    <?= htmlspecialchars($user['full_name']) ?>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item" href="<?= $currentDir === 'admin' ? 'logout.php' : '../logout.php' ?>">
+                            <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
     
     <!-- Page Content -->
     <div class="container-fluid">
+
+<!-- Incluir CSS del sistema simple de notificaciones -->
+<link rel="stylesheet" href="<?= $currentDir === 'admin' ? 'assets/css/notifications_simple.css' : '../assets/css/notifications_simple.css' ?>">
+
+<!-- Incluir JavaScript del sistema simple de notificaciones -->
+<script src="<?= $currentDir === 'admin' ? 'assets/js/notifications_simple.js' : '../assets/js/notifications_simple.js' ?>"></script>
 
 <script>
 function toggleSubmenu(element) {

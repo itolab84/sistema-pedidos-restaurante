@@ -25,6 +25,7 @@
     <!-- Custom FlavorFinder CSS -->
     <link href="assets/css/style.css" rel="stylesheet">
     <link href="assets/css/product-modal-improvements.css" rel="stylesheet">
+    <link href="assets/css/banners.css" rel="stylesheet">
     
     <!-- Meta tags for SEO and PWA -->
     <meta name="description" content="FlavorFinder - Ordena tu comida favorita con una experiencia única que estimula tu apetito">
@@ -93,93 +94,20 @@
         </div>
     </nav>
 
-    <!-- Promotional Banners Carousel - Full Width -->
-    <div class="promotional-banners-fullwidth">
-            <div id="promotionalCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
-                <div class="carousel-indicators">
-                    <button type="button" data-bs-target="#promotionalCarousel" data-bs-slide-to="0" class="active"></button>
-                    <button type="button" data-bs-target="#promotionalCarousel" data-bs-slide-to="1"></button>
-                    <button type="button" data-bs-target="#promotionalCarousel" data-bs-slide-to="2"></button>
-                </div>
-                
-                <div class="carousel-inner">
-                    <!-- Banner 1 - Hamburguesas Premium -->
-                    <div class="carousel-item active">
-                        <div class="promotional-banner" onclick="goToProduct(1)" style="cursor: pointer;">
-                            <div class="banner-content">
-                                <div class="banner-text">
-                                    <h2 class="banner-title">🍔 Hamburguesas Premium</h2>
-                                    <p class="banner-subtitle">Ingredientes frescos, sabor incomparable</p>
-                                    <div class="banner-cta">
-                                        <span class="cta-text">¡Ordena ahora!</span>
-                                        <i class="fas fa-arrow-right ms-2"></i>
-                                    </div>
-                                </div>
-                                <div class="banner-image">
-                                    <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=400&fit=crop&crop=center" 
-                                         alt="Hamburguesas Premium" class="banner-img">
-                                </div>
-                            </div>
-                            <div class="banner-overlay"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Banner 2 - Bebidas Refrescantes -->
-                    <div class="carousel-item">
-                        <div class="promotional-banner" onclick="filterProducts('Bebidas')" style="cursor: pointer;">
-                            <div class="banner-content">
-                                <div class="banner-text">
-                                    <h2 class="banner-title">🥤 Bebidas Refrescantes</h2>
-                                    <p class="banner-subtitle">Perfectas para acompañar tu comida</p>
-                                    <div class="banner-cta">
-                                        <span class="cta-text">Ver bebidas</span>
-                                        <i class="fas fa-arrow-right ms-2"></i>
-                                    </div>
-                                </div>
-                                <div class="banner-image">
-                                    <img src="https://images.unsplash.com/photo-1544145945-f90425340c7e?w=800&h=400&fit=crop&crop=center" 
-                                         alt="Bebidas Refrescantes" class="banner-img">
-                                </div>
-                            </div>
-                            <div class="banner-overlay"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Banner 3 - Ofertas Especiales -->
-                    <div class="carousel-item">
-                        <div class="promotional-banner" onclick="showSpecialOffers()" style="cursor: pointer;">
-                            <div class="banner-content">
-                                <div class="banner-text">
-                                    <h2 class="banner-title">🎉 Ofertas Especiales</h2>
-                                    <p class="banner-subtitle">Descuentos increíbles por tiempo limitado</p>
-                                    <div class="banner-cta">
-                                        <span class="cta-text">Ver ofertas</span>
-                                        <i class="fas fa-arrow-right ms-2"></i>
-                                    </div>
-                                </div>
-                                <div class="banner-image">
-                                    <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=400&fit=crop&crop=center" 
-                                         alt="Ofertas Especiales" class="banner-img">
-                                </div>
-                            </div>
-                            <div class="banner-overlay"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <button class="carousel-control-prev" type="button" data-bs-target="#promotionalCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon"></span>
-                    <span class="visually-hidden">Anterior</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#promotionalCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon"></span>
-                    <span class="visually-hidden">Siguiente</span>
-                </button>
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Dynamic Banner System - Full Width -->
+        <div id="hero-banners" class="promotional-banners-fullwidth">
+            <!-- Hero banners will be loaded dynamically -->
+            <div class="banner-loading">
+                <i class="fas fa-spinner"></i>
+                <span>Cargando banners...</span>
             </div>
         </div>
-
-    <!-- Main Content -->
-    <div class="container mt-4">
+        <!-- Sidebar Banners Container -->
+        <div class="row">
+            <div class="col-lg-9">
+                <!-- Main content area -->
         <!-- Minimal Search Section -->
         <div class="minimal-search-section fade-in">
             <div class="search-input-group">
@@ -325,6 +253,20 @@
         <div id="lazyLoadTrigger" class="lazy-load-trigger d-none">
             <div class="loading-spinner"></div>
             <span class="ms-2">Cargando más productos...</span>
+        </div>
+            </div>
+            
+            <!-- Sidebar with Banners -->
+            <div class="col-lg-3">
+                <div id="sidebar-banners">
+                    <!-- Sidebar banners will be loaded here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer Banners -->
+        <div class="row mt-5" id="footer-banners">
+            <!-- Footer banners will be loaded here -->
         </div>
     </div>
 
@@ -548,14 +490,37 @@
                         </div>
                     </div>
 
-                    <!-- Customer Information - Moved to Top after Order Summary -->
-                    <div class="row mb-4">
-                        <div class="col-12">
+                    <!-- Customer Authentication Section - Moved after Order Summary -->
+                    <div class="mb-4">
+                        <div id="customerAuthSection">
                             <!-- Customer Authentication Status -->
                             <div id="customerInfoDisplay" class="mb-3">
                                 <!-- Customer auth info will be displayed here -->
                             </div>
                             
+                            <!-- Login/Register Section (shown when not authenticated) -->
+                            <div id="authenticationSection" class="mb-4" style="display: none;">
+                                <div class="auth-section-card p-4 border rounded" style="background-color: #f8f9fa;">
+                                    <div class="text-center mb-3">
+                                        <h6 class="mb-2"><i class="fas fa-user-shield me-2"></i>Iniciar Sesión o Registrarse</h6>
+                                        <p class="text-muted small mb-3">Para continuar con su pedido, debe iniciar sesión o crear una cuenta</p>
+                                    </div>
+                                    <div class="d-flex gap-3 justify-content-center">
+                                        <button class="btn btn-auth-login" onclick="showCustomerLoginModal()" style="background-color: #E67E22; border-color: #E67E22; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 500;">
+                                            <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                                        </button>
+                                        <button class="btn btn-auth-register" onclick="showCustomerRegisterModal()" style="background-color: #A93226; border-color: #A93226; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 500;">
+                                            <i class="fas fa-user-plus me-2"></i>Registrarse
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Customer Information Form (only shown when authenticated) -->
+                    <div id="customerInfoSection" class="row mb-4" style="display: none;">
+                        <div class="col-12">
                             <!-- Expandable Customer Form -->
                             <div class="customer-info-expandable">
                                 <div class="customer-info-header" onclick="toggleCustomerForm()">
@@ -639,8 +604,8 @@
                         </div>
                     </div>
 
-                    <!-- Delivery Address Section - MOVED OUTSIDE EXPANDABLE CONTAINER -->
-                    <div id="deliverySection" class="mb-4">
+                    <!-- Delivery Address Section (only shown when authenticated and delivery selected) -->
+                    <div id="deliverySection" class="mb-4" style="display: none;">
                         <h6 class="mb-3"><i class="fas fa-map-marker-alt"></i> Dirección de Entrega</h6>
                         
                         <!-- Existing Addresses -->
@@ -737,6 +702,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Leaflet JS for maps -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="assets/js/banners.js"></script>
     <script src="assets/js/app_final.js"></script>
 </body>
 </html>

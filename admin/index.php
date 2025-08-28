@@ -43,6 +43,7 @@ $top_products = $db->fetchAll(
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="assets/css/admin.css" rel="stylesheet">
+    <link href="assets/css/notifications.css" rel="stylesheet">
 </head>
 <body>
     <?php include 'includes/navigation.php'; ?>
@@ -74,7 +75,7 @@ $top_products = $db->fetchAll(
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Órdenes Totales
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-orders">
                                     <?= number_format($stats['total_orders']) ?>
                                 </div>
                             </div>
@@ -94,7 +95,7 @@ $top_products = $db->fetchAll(
                                 <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                     Órdenes Pendientes
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="pending-orders">
                                     <?= number_format($stats['pending_orders']) ?>
                                 </div>
                             </div>
@@ -279,11 +280,13 @@ $top_products = $db->fetchAll(
             </div>
         </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/notifications.js"></script>
     <script>
-        // Auto-refresh dashboard every 30 seconds
-        setTimeout(() => {
-            location.reload();
-        }, 30000);
+        // Disable auto-refresh when notifications are active
+        // The notification system will handle updates
+        // setTimeout(() => {
+        //     location.reload();
+        // }, 30000);
     </script>
 
     <?php include 'includes/footer.php'; ?>

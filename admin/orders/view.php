@@ -40,6 +40,32 @@ $orderItems = $db->fetchAll(
     [$orderId]
 );
 
+// Get order payments
+$orderPayments = $db->fetchAll(
+    "SELECT op.*, 
+            COALESCE(p.payment_method, op.payment_method) as payment_method,
+            COALESCE(p.amount, op.amount) as payment_amount,
+            COALESCE(p.transaction_id, op.reference) as reference,
+            COALESCE(p.payment_status, op.status) as payment_status,
+            COALESCE(p.payment_date, op.created_at) as payment_date,
+            op.bank_origin, op.bank_destination, op.phone, op.change_amount
+     FROM order_payments op
+     LEFT JOIN payments p ON op.payment_id = p.id
+     WHERE op.order_id = ?
+     ORDER BY COALESCE(p.created_at, op.created_at) ASC",
+    [$orderId]
+);
+
+// Get change history if exists
+$changeHistory = $db->fetchAll(
+    "SELECT ch.*, b.name as bank_name_lookup
+     FROM change_history ch
+     LEFT JOIN banks b ON ch.bank_code = b.code
+     WHERE ch.order_id = ?
+     ORDER BY ch.created_at DESC",
+    [$orderId]
+);
+
 // Get order status history
 $statusHistory = $db->fetchAll(
     "SELECT * FROM order_status_history 
@@ -263,13 +289,138 @@ $statusLabels = [
                                     </tr>
                                     <tr>
                                         <td><strong>Total:</strong></td>
-                                        <td><strong class="text-success">$<?= number_format($order['total_amount'], 2) ?></strong></td>
+                                        <td><strong class="text-success">$<?= number_format($order['total_amount_usd'] ?? $order['total_amount'], 2) ?></strong></td>
                                     </tr>
                                 </table>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Payment Information -->
+                <?php if (!empty($orderPayments)): ?>
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-credit-card me-2"></i>Información de Pagos
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Método</th>
+                                        <th>Monto</th>
+                                        <th>Referencia</th>
+                                        <th>Estado</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($orderPayments as $payment): ?>
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-info">
+                                                    <?= ucfirst(str_replace('_', ' ', $payment['payment_method'])) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <strong class="text-success">
+                                                    $<?= number_format($payment['payment_amount'], 2) ?>
+                                                </strong>
+                                            </td>
+                                            <td>
+                                                <?= htmlspecialchars($payment['reference'] ?? 'N/A') ?>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-<?= $payment['payment_status'] === 'completed' ? 'success' : ($payment['payment_status'] === 'pending' ? 'warning' : 'danger') ?>">
+                                                    <?= ucfirst($payment['payment_status']) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    <?= date('d/m/Y H:i', strtotime($payment['payment_date'])) ?>
+                                                </small>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <!-- Change History -->
+                <?php if (!empty($changeHistory)): ?>
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-exchange-alt me-2"></i>Solicitudes de Vuelto
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Banco</th>
+                                        <th>Teléfono</th>
+                                        <th>Monto Pagado</th>
+                                        <th>Monto Vuelto</th>
+                                        <th>Método</th>
+                                        <th>Estado</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($changeHistory as $change): ?>
+                                        <tr>
+                                            <td>
+                                                <?= htmlspecialchars($change['bank_name'] ?? ($change['bank_name_lookup'] ?? $change['bank_code'])) ?>
+                                            </td>
+                                            <td>
+                                                <?= htmlspecialchars($change['customer_phone'] ?? 'N/A') ?>
+                                            </td>
+                                            <td>
+                                                <strong class="text-info">
+                                                    $<?= number_format($change['amount_paid'], 2) ?>
+                                                </strong>
+                                            </td>
+                                            <td>
+                                                <strong class="text-warning">
+                                                    <?= $change['change_currency'] === 'USD' ? '$' : 'Bs.' ?><?= number_format($change['change_amount'], 2) ?>
+                                                </strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">
+                                                    <?= ucfirst($change['change_method']) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-<?= $change['payment_status'] === 'completed' ? 'success' : ($change['payment_status'] === 'pending' ? 'warning' : 'danger') ?>">
+                                                    <?= ucfirst($change['payment_status']) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    <?= date('d/m/Y H:i', strtotime($change['created_at'])) ?>
+                                                </small>
+                                                <?php if ($change['processed_at']): ?>
+                                                    <br><small class="text-success">
+                                                        Procesado: <?= date('d/m/Y H:i', strtotime($change['processed_at'])) ?>
+                                                    </small>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
 
                 <!-- Order Items -->
                 <div class="card shadow mb-4">
@@ -314,7 +465,7 @@ $statusLabels = [
                                 <tfoot>
                                     <tr class="table-active">
                                         <th colspan="3">Total:</th>
-                                        <th class="text-success">$<?= number_format($order['total_amount'], 2) ?></th>
+                                        <th class="text-success">$<?= number_format($order['total_amount_usd'] ?? $order['total_amount'], 2) ?></th>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -395,14 +546,14 @@ $statusLabels = [
                                                     Por: <?= htmlspecialchars($history['changed_by']) ?>
                                                 </small>
                                                 
-                                <?php if (!empty($history['notes'])): ?>
-                                    <div class="mt-2">
-                                        <small class="text-info">
-                                            <i class="fas fa-comment"></i> 
-                                            <?= htmlspecialchars($history['notes']) ?>
-                                        </small>
-                                    </div>
-                                <?php endif; ?>
+                                                <?php if (!empty($history['notes'])): ?>
+                                                    <div class="mt-2">
+                                                        <small class="text-info">
+                                                            <i class="fas fa-comment"></i> 
+                                                            <?= htmlspecialchars($history['notes']) ?>
+                                                        </small>
+                                                    </div>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </div>

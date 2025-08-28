@@ -1,0 +1,419 @@
+/**
+ * Estilos para Sistema de Notificaciones
+ * Panel de Administración
+ */
+
+/* Contenedor principal de notificaciones toast */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 400px;
+    pointer-events: none;
+}
+
+/* Notificación toast individual */
+.notification-toast {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-bottom: 10px;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    pointer-events: all;
+    overflow: hidden;
+    border-left: 4px solid #28a745;
+}
+
+.notification-toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.notification-toast.urgent {
+    border-left-color: #dc3545;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
+    50% { box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3); }
+    100% { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
+}
+
+/* Header de la notificación */
+.notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px 8px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.notification-header i {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.notification-header strong {
+    color: #495057;
+    font-size: 14px;
+}
+
+.notification-header .btn-close {
+    padding: 0;
+    margin: 0;
+    font-size: 12px;
+    opacity: 0.5;
+}
+
+.notification-header .btn-close:hover {
+    opacity: 1;
+}
+
+/* Cuerpo de la notificación */
+.notification-body {
+    padding: 12px 16px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.notification-body > div {
+    margin-bottom: 4px;
+}
+
+.notification-body > div:last-child {
+    margin-bottom: 0;
+}
+
+/* Acciones de la notificación */
+.notification-actions {
+    padding: 8px 16px 12px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.notification-actions .btn {
+    font-size: 12px;
+    padding: 4px 12px;
+}
+
+/* Dropdown de notificaciones en navbar */
+.notification-dropdown {
+    width: 350px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-dropdown .dropdown-header {
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Lista de notificaciones */
+.notifications-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f3f4;
+    transition: background-color 0.2s ease;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa;
+}
+
+.notification-item.new {
+    background-color: #e8f5e8;
+    border-left: 3px solid #28a745;
+}
+
+.notification-icon {
+    margin-right: 12px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: #495057;
+    margin-bottom: 2px;
+}
+
+.notification-text {
+    font-size: 12px;
+    color: #6c757d;
+    margin-bottom: 4px;
+}
+
+.notification-time {
+    font-size: 11px;
+    color: #adb5bd;
+}
+
+.notification-actions {
+    margin-left: 8px;
+}
+
+/* Badge de notificaciones */
+#notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    font-size: 10px;
+    line-height: 18px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Toast de mensajes simples */
+.toast-message {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #495057;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    z-index: 10000;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+}
+
+.toast-message.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Efectos de actualización en estadísticas */
+.updated {
+    animation: highlight 1s ease;
+}
+
+@keyframes highlight {
+    0% { background-color: transparent; }
+    50% { background-color: #fff3cd; }
+    100% { background-color: transparent; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .notification-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+    
+    .notification-dropdown {
+        width: 300px;
+    }
+    
+    .notification-toast {
+        margin-bottom: 8px;
+    }
+    
+    .notification-body {
+        font-size: 12px;
+    }
+    
+    .notification-actions .btn {
+        font-size: 11px;
+        padding: 3px 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .notification-dropdown {
+        width: 280px;
+    }
+    
+    .notification-item {
+        padding: 10px 12px;
+    }
+    
+    .notification-icon {
+        width: 28px;
+        height: 28px;
+        margin-right: 10px;
+    }
+    
+    .toast-message {
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        text-align: center;
+    }
+}
+
+/* Estados de sonido */
+.sound-enabled {
+    color: #28a745;
+}
+
+.sound-disabled {
+    color: #6c757d;
+}
+
+/* Animaciones adicionales */
+.notification-item.new {
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Scrollbar personalizado para lista de notificaciones */
+.notifications-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notifications-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Estados de carga */
+.notification-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #6c757d;
+}
+
+.notification-loading i {
+    margin-right: 8px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Indicador de conexión */
+.connection-status {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    z-index: 9998;
+    transition: all 0.3s ease;
+}
+
+.connection-status.connected {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.connection-status.disconnected {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.connection-status.checking {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+/* Estilos para nuevas órdenes en tabla */
+.table-success {
+    background-color: #d1edff !important;
+    animation: newOrderPulse 3s ease-in-out;
+}
+
+@keyframes newOrderPulse {
+    0% { 
+        background-color: #28a745 !important;
+        color: white;
+        transform: scale(1.02);
+    }
+    50% {
+        background-color: #d1edff !important;
+        color: inherit;
+        transform: scale(1);
+    }
+    100% { 
+        background-color: #d1edff !important;
+        color: inherit;
+        transform: scale(1);
+    }
+}
+
+/* Animación para badge de notificaciones */
+.notification-badge-pulse {
+    animation: badgePulse 2s infinite;
+}
+
+@keyframes badgePulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Indicador de error en notificaciones */
+.toast-message.error {
+    background: #dc3545;
+}
+
+.toast-message.info {
+    background: #17a2b8;
+}
+
+.toast-message i {
+    margin-right: 8px;
+}

@@ -177,13 +177,11 @@ async function checkCustomerSession() {
             isCustomerAuthenticated = false;
             loggedCustomer = null;
             customerFrequentPaymentMethods = [];
-            disablePaymentMethods();
             updateCustomerUI();
         }
     } catch (error) {
         console.error('Error checking customer session:', error);
         isCustomerAuthenticated = false;
-        disablePaymentMethods();
     }
 }
 
@@ -260,7 +258,6 @@ async function customerLogout() {
         isCustomerAuthenticated = false;
         loggedCustomer = null;
         customerFrequentPaymentMethods = [];
-        disablePaymentMethods();
         updateCustomerUI();
         stopSessionTimer();
         showToast('Sesión cerrada correctamente', 'info');
@@ -285,6 +282,12 @@ function enablePaymentMethods() {
     if (paymentContainer) {
         paymentContainer.style.opacity = '1';
         paymentContainer.style.pointerEvents = 'auto';
+    }
+    
+    // Remove authentication message if it exists
+    const authMessage = document.getElementById('authRequiredMessage');
+    if (authMessage) {
+        authMessage.remove();
     }
 }
 
@@ -311,44 +314,35 @@ function disablePaymentMethods() {
 }
 
 function showAuthenticationRequiredMessage() {
-    const paymentContainer = document.querySelector('.payment-method-container');
-    if (!paymentContainer) return;
-    
-    // Remove existing auth message
+    // Remove existing message first
     const existingMessage = document.getElementById('authRequiredMessage');
     if (existingMessage) {
         existingMessage.remove();
     }
     
-    const authMessage = document.createElement('div');
-    authMessage.id = 'authRequiredMessage';
-    authMessage.className = 'alert alert-warning mt-3';
-    authMessage.innerHTML = `
-        <div class="d-flex align-items-center">
-            <i class="fas fa-lock me-3 fa-2x"></i>
-            <div class="flex-grow-1">
-                <h6 class="mb-1">Autenticación Requerida</h6>
-                <p class="mb-2">Para acceder a los métodos de pago, debe iniciar sesión o registrarse.</p>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-primary btn-sm" onclick="showCustomerLoginModal()">
-                        <i class="fas fa-sign-in-alt me-1"></i>Iniciar Sesión
-                    </button>
-                    <button class="btn btn-outline-primary btn-sm" onclick="showCustomerRegisterModal()">
-                        <i class="fas fa-user-plus me-1"></i>Registrarse
-                    </button>
-                </div>
-            </div>
-        </div>
+    // Create authentication required message
+    const messageHTML = `
+        
     `;
     
-    paymentContainer.parentNode.insertBefore(authMessage, paymentContainer.nextSibling);
+    // Insert message after payment method container
+    const paymentContainer = document.querySelector('.payment-method-container');
+    if (paymentContainer) {
+        paymentContainer.insertAdjacentHTML('afterend', messageHTML);
+    }
 }
+
 
 function updateCustomerUI() {
     // Update customer info display in checkout
     const customerInfoContainer = document.getElementById('customerInfoDisplay');
+    const authenticationSection = document.getElementById('authenticationSection');
+    const customerInfoSection = document.getElementById('customerInfoSection');
+    const deliverySection = document.getElementById('deliverySection');
+    
     if (customerInfoContainer) {
         if (isCustomerAuthenticated && loggedCustomer) {
+            // Show authenticated user info
             customerInfoContainer.innerHTML = `
                 <div class="alert alert-success">
                     <div class="d-flex justify-content-between align-items-center">
@@ -363,6 +357,16 @@ function updateCustomerUI() {
                     </div>
                 </div>
             `;
+            
+            // Hide authentication section and show customer info section
+            if (authenticationSection) authenticationSection.style.display = 'none';
+            if (customerInfoSection) customerInfoSection.style.display = 'block';
+            
+            // Show delivery section if delivery is selected
+            const isDelivery = document.getElementById('delivery') && document.getElementById('delivery').checked;
+            if (deliverySection && isDelivery) {
+                deliverySection.style.display = 'block';
+            }
             
             // Pre-fill customer data in checkout form
             if (loggedCustomer.first_name) document.getElementById('firstName').value = loggedCustomer.first_name;
@@ -381,16 +385,18 @@ function updateCustomerUI() {
                 if (whatsappPhone) document.getElementById('phoneWhatsapp').value = whatsappPhone.phone_number;
             }
         } else {
+            // Show authentication section and hide customer info section
             customerInfoContainer.innerHTML = '';
+            if (authenticationSection) authenticationSection.style.display = 'block';
+            if (customerInfoSection) customerInfoSection.style.display = 'none';
+            if (deliverySection) deliverySection.style.display = 'none';
         }
     }
     
-    // Remove auth required message if authenticated
-    if (isCustomerAuthenticated) {
-        const authMessage = document.getElementById('authRequiredMessage');
-        if (authMessage) {
-            authMessage.remove();
-        }
+    // Always remove any existing auth message since payment methods are always available
+    const authMessage = document.getElementById('authRequiredMessage');
+    if (authMessage) {
+        authMessage.remove();
     }
 }
 
@@ -432,10 +438,10 @@ function showCustomerLoginModal() {
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary" onclick="processCustomerLogin()">
+                        <button type="button" class="btn" onclick="processCustomerLogin()" style="background-color: #ff6b35; border-color: #ff6b35; color: white;">
                             <i class="fas fa-sign-in-alt me-1"></i>Iniciar Sesión
                         </button>
-                        <button type="button" class="btn btn-link" onclick="switchToRegisterModal()">
+                        <button type="button" class="btn btn-link" onclick="switchToRegisterModal()" style="color: #ff6b35;">
                             ¿No tienes cuenta? Regístrate
                         </button>
                     </div>
@@ -514,12 +520,29 @@ function showCustomerRegisterModal() {
                                                placeholder="Instrucciones de entrega (opcional)">
                                     </div>
                                 </div>
+                                
+                                <!-- Map for Location -->
+                                <div class="mb-3">
+                                    <label class="form-label">Ubicación en el Mapa <span class="text-danger">*</span></label>
+                                    <div class="d-flex gap-2 mb-2">
+                                        <button type="button" class="btn btn-sm btn-outline-success" onclick="getRegisterCurrentLocation()">
+                                            <i class="fas fa-crosshairs"></i> Mi Ubicación Actual
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="searchRegisterAddress()">
+                                            <i class="fas fa-search"></i> Buscar Dirección
+                                        </button>
+                                    </div>
+                                    <div id="registerMap" style="height: 300px; border: 2px solid #dee2e6; border-radius: 8px;"></div>
+                                    <small class="text-muted">Haga clic en el mapa para marcar su ubicación exacta</small>
+                                    <input type="hidden" id="regLatitude">
+                                    <input type="hidden" id="regLongitude">
+                                </div>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary" onclick="processCustomerRegister()">
+                        <button type="button" class="btn" onclick="processCustomerRegister()" style="background-color: #A93226; border-color: #A93226; color: white;">
                             <i class="fas fa-user-plus me-1"></i>Registrarse
                         </button>
                         <button type="button" class="btn btn-link" onclick="switchToLoginModal()">
@@ -543,6 +566,11 @@ function showCustomerRegisterModal() {
     // Show modal
     const modal = new bootstrap.Modal(document.getElementById('customerRegisterModal'));
     modal.show();
+    
+    // Initialize map after modal is shown
+    modal._element.addEventListener('shown.bs.modal', function () {
+        initializeRegisterMap();
+    });
 }
 
 async function processCustomerLogin() {
@@ -1140,11 +1168,11 @@ function updatePaymentMethodsInCheckout() {
     
     container.innerHTML = selectorHTML;
     
-    // Apply authentication state immediately after creating the container
-    if (!isCustomerAuthenticated) {
-        disablePaymentMethods();
-    } else {
+    // Check authentication status and enable/disable payment methods accordingly
+    if (isCustomerAuthenticated) {
         enablePaymentMethods();
+    } else {
+        disablePaymentMethods();
     }
 }
 
@@ -3229,7 +3257,12 @@ function toggleOrderType() {
     const deliveryRequiredFields = document.querySelectorAll('.delivery-required');
     
     if (isDelivery) {
-        deliverySection.style.display = 'block';
+        // Only show delivery section if user is authenticated
+        if (isCustomerAuthenticated) {
+            deliverySection.style.display = 'block';
+        } else {
+            deliverySection.style.display = 'none';
+        }
         pickupSection.style.display = 'none';
         deliveryFeeRow.style.display = 'flex';
         
@@ -3680,9 +3713,7 @@ async function completeOrder() {
     
     // Show detailed error if there are missing fields
     if (missingFields.length > 0) {
-        const errorMessage = `Campos faltantes:\n• ${missingFields.join('\n• ')}`;
-        alert(errorMessage);
-        showToast('Por favor complete todos los campos requeridos', 'error');
+        showModernAlert('error', 'Campos Faltantes', `Por favor complete los siguientes campos:\n• ${missingFields.join('\n• ')}`);
         return;
     }
     
@@ -3784,12 +3815,28 @@ async function completeOrder() {
             clearCartStorage();
             updateCartDisplay();
             
-            bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide();
+            // Cerrar el modal del checkout
+            const checkoutModal = bootstrap.Modal.getInstance(document.getElementById('checkoutModal'));
+            if (checkoutModal) {
+                checkoutModal.hide();
+            }
+            
+            // Cerrar cualquier modal del carrito que pueda estar abierto
+            const cartModal = document.getElementById('cartModal');
+            if (cartModal) {
+                const cartModalInstance = bootstrap.Modal.getInstance(cartModal);
+                if (cartModalInstance) {
+                    cartModalInstance.hide();
+                }
+            }
             
             form.reset();
             currentCustomer = null;
             
-            showOrderConfirmation(result.order_id, result.total);
+            // Mostrar confirmación después de un pequeño delay para asegurar que los modales se cierren
+            setTimeout(() => {
+                showOrderConfirmation(result.order_id, result.total);
+            }, 300);
         } else {
             showToast(result.message || 'Error al procesar el pedido', 'error');
         }
@@ -3799,23 +3846,166 @@ async function completeOrder() {
     }
 }
 
-// Show order confirmation
+// Show order confirmation with modern Tailwind CSS design
 function showOrderConfirmation(orderId, total) {
     const confirmationHTML = `
-        <div class="alert alert-success alert-dismissible fade show order-success" role="alert">
-            <h4 class="alert-heading"><i class="fas fa-check-circle"></i> ¡Pedido Confirmado!</h4>
-            <p>Tu pedido #${orderId} ha sido realizado exitosamente.</p>
-            <p><strong>Total: $${parseFloat(total).toFixed(2)}</strong></p>
-            <hr>
-            <p class="mb-0">Recibirás una confirmación por email y te contactaremos pronto.</p>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" id="orderConfirmationModal">
+            <div class="relative max-w-lg w-full mx-4 transform transition-all duration-500 ease-out scale-95 opacity-0" id="orderConfirmationCard">
+                <!-- Modern Success Card -->
+                <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+                    <!-- Header with modern gradient -->
+                    <div class="bg-gradient-to-br from-emerald-500 via-green-500 to-teal-600 px-8 py-10 text-center relative overflow-hidden">
+                        <!-- Background decoration -->
+                        <div class="absolute inset-0 bg-white bg-opacity-10"></div>
+                        <div class="absolute -top-4 -right-4 w-24 h-24 bg-white bg-opacity-10 rounded-full"></div>
+                        <div class="absolute -bottom-4 -left-4 w-32 h-32 bg-white bg-opacity-5 rounded-full"></div>
+                        
+                        <!-- Success icon with animation -->
+                        <div class="relative w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+                            <svg class="w-10 h-10 text-white animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        
+                        <h2 class="text-3xl font-bold text-white mb-3 tracking-tight">¡Pedido Confirmado!</h2>
+                        <p class="text-emerald-100 text-base font-medium">Tu orden ha sido procesada exitosamente</p>
+                    </div>
+                    
+                    <!-- Content with modern spacing -->
+                    <div class="px-8 py-8">
+                        <!-- Order Details with modern card -->
+                        <div class="text-center mb-8">
+                            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl mb-4 shadow-inner">
+                                <span class="text-xl font-bold text-gray-700">#${orderId}</span>
+                            </div>
+                            <p class="text-gray-500 text-sm font-medium mb-6 uppercase tracking-wide">Número de pedido</p>
+                            
+                            <!-- Total Amount with modern styling -->
+                            <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-6 mb-6 border border-gray-200">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600 font-semibold text-lg">Total pagado:</span>
+                                    <span class="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">$${parseFloat(total).toFixed(2)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Modern Status Progress -->
+                        <div class="mb-8">
+                            <div class="flex items-center justify-between text-xs font-semibold text-gray-400 mb-3 uppercase tracking-wider">
+                                <span class="text-emerald-600">Confirmado</span>
+                                <span>Preparando</span>
+                                <span>Entregado</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3 shadow-inner">
+                                <div class="bg-gradient-to-r from-emerald-500 to-green-500 h-3 rounded-full transition-all duration-2000 ease-out shadow-sm" style="width: 33.33%"></div>
+                            </div>
+                            <div class="flex justify-start mt-2">
+                                <div class="w-3 h-3 bg-emerald-500 rounded-full shadow-sm animate-pulse"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Information card with modern design -->
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6 mb-8">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-4">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-blue-900 text-base font-semibold mb-2">¿Qué sigue?</p>
+                                    <p class="text-blue-700 text-sm leading-relaxed">
+                                        Recibirás una confirmación por email y te contactaremos pronto para coordinar la entrega. 
+                                        Puedes seguir el estado de tu pedido en cualquier momento.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Modern Action Buttons -->
+                        <div class="space-y-4">
+                            <button onclick="trackOrderFromConfirmation('${orderId}')" 
+                                    class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-200 active:scale-95">
+                                <div class="flex items-center justify-center">
+                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                    Seguir mi pedido
+                                </div>
+                            </button>
+                            
+                            <button onclick="closeOrderConfirmation()" 
+                                    class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-4 px-6 rounded-2xl transition-all duration-300 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-gray-200 active:scale-95">
+                                <div class="flex items-center justify-center">
+                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                                    </svg>
+                                    Continuar comprando
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modern close button -->
+                <button onclick="closeOrderConfirmation()" 
+                        class="absolute -top-3 -right-3 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-gray-200 transform hover:scale-110 active:scale-95">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
     `;
     
-    const container = document.querySelector('.container');
-    container.insertAdjacentHTML('afterbegin', confirmationHTML);
+    // Add to body
+    document.body.insertAdjacentHTML('beforeend', confirmationHTML);
     
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Animate in with stagger effect
+    setTimeout(() => {
+        const card = document.getElementById('orderConfirmationCard');
+        if (card) {
+            card.classList.remove('scale-95', 'opacity-0');
+            card.classList.add('scale-100', 'opacity-100');
+        }
+    }, 150);
+    
+    // Auto close after 12 seconds
+    setTimeout(() => {
+        closeOrderConfirmation();
+    }, 12000);
+}
+
+// Close order confirmation modal
+function closeOrderConfirmation() {
+    const modal = document.getElementById('orderConfirmationModal');
+    const card = document.getElementById('orderConfirmationCard');
+    
+    if (card) {
+        card.classList.add('scale-95', 'opacity-0');
+        card.classList.remove('scale-100', 'opacity-100');
+    }
+    
+    setTimeout(() => {
+        if (modal) {
+            modal.remove();
+        }
+    }, 300);
+}
+
+// Track order from confirmation modal
+function trackOrderFromConfirmation(orderId) {
+    closeOrderConfirmation();
+    
+    // Pre-fill the order tracking modal
+    setTimeout(() => {
+        const orderTrackingNumber = document.getElementById('orderTrackingNumber');
+        if (orderTrackingNumber) {
+            orderTrackingNumber.value = orderId;
+        }
+        showOrderTracking();
+    }, 400);
 }
 
 // Search functionality
@@ -3896,6 +4086,133 @@ function clearPriceFilter() {
     document.getElementById('minPrice').value = '';
     document.getElementById('maxPrice').value = '';
     performSearch();
+}
+
+// Show modern alert with Tailwind CSS styling
+function showModernAlert(type, title, message) {
+    const alertId = 'modernAlert_' + Date.now();
+    
+    // Define colors and icons based on type
+    const alertConfig = {
+        error: {
+            bgColor: 'bg-red-50',
+            borderColor: 'border-red-200',
+            iconColor: 'text-red-500',
+            titleColor: 'text-red-800',
+            messageColor: 'text-red-700',
+            buttonColor: 'bg-red-600 hover:bg-red-700',
+            icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z'
+        },
+        warning: {
+            bgColor: 'bg-yellow-50',
+            borderColor: 'border-yellow-200',
+            iconColor: 'text-yellow-500',
+            titleColor: 'text-yellow-800',
+            messageColor: 'text-yellow-700',
+            buttonColor: 'bg-yellow-600 hover:bg-yellow-700',
+            icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z'
+        },
+        success: {
+            bgColor: 'bg-green-50',
+            borderColor: 'border-green-200',
+            iconColor: 'text-green-500',
+            titleColor: 'text-green-800',
+            messageColor: 'text-green-700',
+            buttonColor: 'bg-green-600 hover:bg-green-700',
+            icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
+        },
+        info: {
+            bgColor: 'bg-blue-50',
+            borderColor: 'border-blue-200',
+            iconColor: 'text-blue-500',
+            titleColor: 'text-blue-800',
+            messageColor: 'text-blue-700',
+            buttonColor: 'bg-blue-600 hover:bg-blue-700',
+            icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+        }
+    };
+    
+    const config = alertConfig[type] || alertConfig.info;
+    
+    // Format message to handle line breaks
+    const formattedMessage = message.replace(/\n/g, '<br>');
+    
+    const alertHTML = `
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" id="${alertId}">
+            <div class="relative max-w-md w-full mx-4 transform transition-all duration-300 ease-out scale-95 opacity-0" id="${alertId}_card">
+                <!-- Modern Alert Card -->
+                <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border ${config.borderColor}">
+                    <!-- Header -->
+                    <div class="${config.bgColor} px-6 py-4 border-b ${config.borderColor}">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 w-10 h-10 ${config.bgColor} rounded-full flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 ${config.iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${config.icon}"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold ${config.titleColor}">${title}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="px-6 py-6">
+                        <div class="${config.messageColor} text-sm leading-relaxed">
+                            ${formattedMessage}
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                        <div class="flex justify-end">
+                            <button onclick="closeModernAlert('${alertId}')" 
+                                    class="px-4 py-2 ${config.buttonColor} text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-opacity-50 active:scale-95">
+                                Entendido
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Close button -->
+                <button onclick="closeModernAlert('${alertId}')" 
+                        class="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-gray-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Add to body
+    document.body.insertAdjacentHTML('beforeend', alertHTML);
+    
+    // Animate in
+    setTimeout(() => {
+        const card = document.getElementById(`${alertId}_card`);
+        if (card) {
+            card.classList.remove('scale-95', 'opacity-0');
+            card.classList.add('scale-100', 'opacity-100');
+        }
+    }, 100);
+}
+
+// Close modern alert
+function closeModernAlert(alertId) {
+    const modal = document.getElementById(alertId);
+    const card = document.getElementById(`${alertId}_card`);
+    
+    if (card) {
+        card.classList.add('scale-95', 'opacity-0');
+        card.classList.remove('scale-100', 'opacity-100');
+    }
+    
+    setTimeout(() => {
+        if (modal) {
+            modal.remove();
+        }
+    }, 300);
 }
 
 // Show toast notification
@@ -4609,5 +4926,113 @@ function updateCustomerFormOnAuth() {
     updateCustomerFormStatus();
     if (isCustomerAuthenticated) {
         autoExpandCustomerForm();
+    }
+}
+
+// ===================================
+//   REGISTER MAP FUNCTIONALITY
+// ===================================
+
+let registerMap = null;
+let registerMarker = null;
+
+// Initialize register map
+function initializeRegisterMap() {
+    if (registerMap) return;
+    
+    const mapContainer = document.getElementById('registerMap');
+    if (!mapContainer) return;
+    
+    registerMap = L.map('registerMap').setView([10.4806, -66.9036], 13);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(registerMap);
+    
+    registerMap.on('click', function(e) {
+        setRegisterMapMarker(e.latlng.lat, e.latlng.lng);
+    });
+}
+
+// Get current location for register
+function getRegisterCurrentLocation() {
+    if (!navigator.geolocation) {
+        showToast('Geolocalización no soportada por este navegador', 'error');
+        return;
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            if (registerMap) {
+                registerMap.setView([lat, lng], 16);
+                setRegisterMapMarker(lat, lng);
+                reverseRegisterGeocode(lat, lng);
+            }
+        },
+        function(error) {
+            showToast('Error al obtener ubicación: ' + error.message, 'error');
+        }
+    );
+}
+
+// Set marker on register map
+function setRegisterMapMarker(lat, lng) {
+    if (registerMarker) {
+        registerMap.removeLayer(registerMarker);
+    }
+    
+    registerMarker = L.marker([lat, lng]).addTo(registerMap);
+    
+    document.getElementById('regLatitude').value = lat;
+    document.getElementById('regLongitude').value = lng;
+}
+
+// Reverse geocoding for register
+async function reverseRegisterGeocode(lat, lng) {
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+        const data = await response.json();
+        
+        if (data && data.display_name) {
+            const addressParts = data.display_name.split(',');
+            document.getElementById('regStreetAddress').value = addressParts.slice(0, 2).join(',').trim();
+            document.getElementById('regCity').value = addressParts[addressParts.length - 3]?.trim() || '';
+        }
+    } catch (error) {
+        console.error('Error in reverse geocoding:', error);
+    }
+}
+
+// Search address for register
+async function searchRegisterAddress() {
+    const address = document.getElementById('regStreetAddress').value.trim();
+    
+    if (!address) {
+        showToast('Ingrese una dirección para buscar', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+            const result = data[0];
+            const lat = parseFloat(result.lat);
+            const lng = parseFloat(result.lon);
+            
+            if (registerMap) {
+                registerMap.setView([lat, lng], 16);
+                setRegisterMapMarker(lat, lng);
+            }
+        } else {
+            showToast('Dirección no encontrada', 'error');
+        }
+    } catch (error) {
+        console.error('Error searching address:', error);
+        showToast('Error al buscar dirección', 'error');
     }
 }

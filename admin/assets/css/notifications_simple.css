@@ -1,0 +1,272 @@
+/* Sistema Simple de Notificaciones - Estilos */
+
+/* Contenedor de toasts */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    max-width: 350px;
+    pointer-events: none; /* Permite clicks a través del contenedor */
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Espacio consistente entre toasts */
+}
+
+/* Toast base */
+.notification-toast {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    overflow: hidden;
+    pointer-events: auto; /* Permite clicks en el toast */
+    position: relative;
+    min-height: 80px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.notification-toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Animación de salida */
+.notification-toast.hiding {
+    opacity: 0;
+    transform: translateX(100%) scale(0.8);
+    transition: all 0.3s ease-in;
+}
+
+/* Toast header */
+.toast-header {
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.toast-header.bg-danger {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+/* Toast body */
+.toast-body {
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.toast-body > div {
+    margin-bottom: 4px;
+}
+
+.toast-body > div:last-child {
+    margin-bottom: 0;
+}
+
+/* Toast actions */
+.toast-actions {
+    padding: 8px 16px 12px;
+    text-align: right;
+}
+
+.toast-actions .btn {
+    font-size: 12px;
+    padding: 4px 12px;
+}
+
+/* Toast variants */
+.notification-toast.error .toast-header {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+.notification-toast.info {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    color: white;
+    border: none;
+}
+
+.notification-toast.info .toast-body {
+    color: white;
+    font-weight: 500;
+    text-align: center;
+    padding: 12px 16px;
+}
+
+/* Botón cerrar */
+.btn-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.btn-close:hover {
+    opacity: 1;
+}
+
+.btn-close::before {
+    content: "×";
+}
+
+/* Lista de notificaciones en dropdown */
+.notification-item {
+    border-bottom: 1px solid #f8f9fa;
+    transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+/* Badge de notificaciones */
+#notification-badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Efecto de actualización para estadísticas */
+.updated {
+    animation: highlight 1s ease;
+}
+
+@keyframes highlight {
+    0% {
+        background-color: #fff3cd;
+        transform: scale(1);
+    }
+    50% {
+        background-color: #ffeaa7;
+        transform: scale(1.05);
+    }
+    100% {
+        background-color: transparent;
+        transform: scale(1);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .toast-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+    
+    .notification-toast {
+        margin-bottom: 8px;
+    }
+    
+    .toast-header {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+    
+    .toast-body {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+    
+    .toast-actions {
+        padding: 6px 12px 10px;
+    }
+}
+
+/* Animaciones adicionales */
+.notification-toast {
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Estados del dropdown */
+.notification-dropdown {
+    min-width: 320px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notifications-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Mejoras visuales */
+.notification-toast {
+    border-left: 4px solid #28a745;
+}
+
+.notification-toast.error {
+    border-left: 4px solid #dc3545;
+}
+
+.notification-toast.info {
+    border-left: 4px solid #17a2b8;
+}
+
+/* Efectos hover para botones */
+.toast-actions .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Scroll personalizado para lista de notificaciones */
+.notifications-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notifications-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
